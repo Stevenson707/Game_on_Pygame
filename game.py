@@ -1,6 +1,6 @@
 import pygame
 import os
-import sys
+from sys import exit
 
 
 def load_image(name, color_key=None):
@@ -81,6 +81,17 @@ class Player(Sprite):
             tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
 
 
+def drawCursor(x, y):
+    pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
+    pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
+    pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
+    pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
+    pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
+    pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+
+
+cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
+pygame.mouse.set_visible(False)
 player = None
 running = True
 clock = pygame.time.Clock()
@@ -90,7 +101,7 @@ hero_group = SpriteGroup()
 
 def terminate():
     pygame.quit()
-    sys.exit
+    exit
 
 
 def start_screen():
@@ -180,6 +191,8 @@ while running:
                 move(hero, "right")
     screen.fill(pygame.Color("black"))
     sprite_group.draw(screen)
+    cursorPX, cursorPY = pygame.mouse.get_pos()
+    drawCursor(cursorPX, cursorPY)
     hero_group.draw(screen)
     clock.tick(FPS)
     pygame.display.flip()
