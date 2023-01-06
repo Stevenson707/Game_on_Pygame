@@ -1,7 +1,13 @@
 import pygame
 import os
 from sys import exit
+import argparse
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("map", type=str, nargs="?", default="map.map")
+args = parser.parse_args()
+map_file = args.map
 
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
@@ -65,6 +71,7 @@ class Tile(Sprite):
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
+        self.abs_pos = (self.rect.x, self.rect.y)
 
 
 class Player(Sprite):
@@ -76,9 +83,11 @@ class Player(Sprite):
         self.pos = (pos_x, pos_y)
 
     def move(self, x, y):
+        camera.dx -= tile_width * (x - self.pos[0])
+        camera.dy -= tile_height * (y - self.pos[1])
         self.pos = (x, y)
-        self.rect = self.image.get_rect().move(
-            tile_width * self.pos[0] + 15, tile_height * self.pos[1] + 5)
+        for sprite in sprite_group:
+            camera.apply(sprite)
 
 
 def drawCursor(x, y):
@@ -97,6 +106,20 @@ running = True
 clock = pygame.time.Clock()
 sprite_group = SpriteGroup()
 hero_group = SpriteGroup()
+
+
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x = obj.abs_pos[0] + self.dx
+        obj.rect.y = obj.abs_pos[1] + self.dy
+
+    def update(self, target):
+        self.dx = 0
+        self.dy = 0
 
 
 def terminate():
@@ -174,8 +197,10 @@ def move(hero, movement):
 
 
 start_screen()
+camera = Camera()
 level_map = load_level("map.map")
 hero, max_x, max_y = generate_level(level_map)
+camera.update(hero)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
