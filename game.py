@@ -127,35 +127,6 @@ def terminate():
     exit
 
 
-def start_screen():
-    intro_text = ["Перемещение героя", "",
-                  "Герой двигается",
-                  "Карта на месте"]
-
-    fon = pygame.transform.scale(load_image('fon.jpg'), screen_size)
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return
-        pygame.display.flip()
-        clock.tick(FPS)
-
-
 def load_level(filename):
     filename = "data/" + filename
     with open(filename, 'r') as mapFile:
@@ -196,29 +167,81 @@ def move(hero, movement):
             hero.move(x + 1, y)
 
 
-start_screen()
 camera = Camera()
 level_map = load_level("map.map")
 hero, max_x, max_y = generate_level(level_map)
-camera.update(hero)
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                move(hero, "up")
-            elif event.key == pygame.K_DOWN:
-                move(hero, "down")
-            elif event.key == pygame.K_LEFT:
-                move(hero, "left")
-            elif event.key == pygame.K_RIGHT:
-                move(hero, "right")
-    screen.fill(pygame.Color("black"))
-    sprite_group.draw(screen)
-    cursorPX, cursorPY = pygame.mouse.get_pos()
-    drawCursor(cursorPX, cursorPY)
-    hero_group.draw(screen)
-    clock.tick(FPS)
-    pygame.display.flip()
+current_scene = None
+
+
+def switch_scene(scene):
+    global current_scene
+    current_scene = scene
+
+
+def scene1():
+    intro_text = ["                                        ",
+                  "                                        ",
+                  "                                        ",
+                  "                                        ",
+                  "                                  Старт", "",
+                  "                                         ",
+                  "                                  Выход", ]
+    fon = pygame.transform.scale(load_image('fon.jpg'), screen_size)
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('black'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                switch_scene(None)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    switch_scene(scene2)
+                    running = False
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                    switch_scene(None)
+        pygame.display.flip()
+
+def scene2():
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera
+    camera.update(hero)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                switch_scene(None)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    move(hero, "up")
+                elif event.key == pygame.K_DOWN:
+                    move(hero, "down")
+                elif event.key == pygame.K_LEFT:
+                    move(hero, "left")
+                elif event.key == pygame.K_RIGHT:
+                    move(hero, "right")
+        screen.fill(pygame.Color("black"))
+        sprite_group.draw(screen)
+        cursorPX, cursorPY = pygame.mouse.get_pos()
+        drawCursor(cursorPX, cursorPY)
+        hero_group.draw(screen)
+        clock.tick(FPS)
+        pygame.display.flip()
+
+
+switch_scene(scene1)
+while current_scene is not None:
+    current_scene()
 pygame.quit()
