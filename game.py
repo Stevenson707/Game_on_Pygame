@@ -181,17 +181,24 @@ def switch_scene(scene):
 def scene1():
     intro_text = ["                                        ",
                   "                                        ",
+                  "                   Name first game on pygame               ",
                   "                                        ",
                   "                                        ",
-                  "                                  Старт", "",
+                  "                        Старт(Нажмите Enter)", "",
                   "                                         ",
-                  "                                  Выход", ]
-    fon = pygame.transform.scale(load_image('fon.jpg'), screen_size)
+                  "                        Выход(Нажмите Esc)",
+                  "                                        ",
+                  "                                        ",
+                  "                                        ",
+                  "                                     ",
+                  "                                    v1.0       Game developers:",
+                  "                                           S1notik and Stevenson",]
+    fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
+        string_rendered = font.render(line, 1, pygame.Color(72, 83, 84))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
