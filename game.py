@@ -167,6 +167,7 @@ def move(hero, movement):
             hero.move(x + 1, y)
 
 
+flPause = False
 camera = Camera()
 level_map = load_level("map.map")
 hero, max_x, max_y = generate_level(level_map)
@@ -179,6 +180,7 @@ def switch_scene(scene):
 
 
 def scene1():
+    global flPause
     intro_text = ["                                        ",
                   "                                        ",
                   "                   Name first game on pygame               ",
@@ -207,18 +209,36 @@ def scene1():
         screen.blit(string_rendered, intro_rect)
 
     running = True
+    pygame.mixer.music.load("HM2-Dust.mp3")
+    vol = 1.0
+    pygame.mixer.music.play(-1)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                pygame.mixer.music.stop()
                 switch_scene(None)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     switch_scene(scene2)
                     running = False
+                    pygame.mixer.music.stop()
                 if event.key == pygame.K_ESCAPE:
                     running = False
+                    pygame.mixer.music.stop()
                     switch_scene(None)
+                if event.key == pygame.K_SPACE:
+                    flPause = not flPause
+                    if flPause:
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                if event.key == pygame.K_LEFT:
+                    vol -= 0.1
+                    pygame.mixer.music.set_volume(vol)
+                if event.key == pygame.K_RIGHT:
+                    vol += 0.1
+                    pygame.mixer.music.set_volume(vol)
         pygame.display.flip()
 
 def scene2():
