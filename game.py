@@ -233,13 +233,14 @@ def scene1():
                         pygame.mixer.music.pause()
                     else:
                         pygame.mixer.music.unpause()
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_DOWN:
                     vol -= 0.1
                     pygame.mixer.music.set_volume(vol)
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_UP:
                     vol += 0.1
                     pygame.mixer.music.set_volume(vol)
         pygame.display.flip()
+
 
 def scene2():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera
