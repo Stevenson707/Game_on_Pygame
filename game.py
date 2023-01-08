@@ -30,8 +30,8 @@ screen = pygame.display.set_mode(screen_size)
 FPS = 50
 
 tile_images = {
-    'wall': load_image('box.png'),
-    'empty': load_image('grass.png')
+    'wall': load_image('bs1.jpg'),
+    'empty': load_image('grass_2.png')
 }
 player_image = load_image('mario.png')
 
@@ -252,13 +252,13 @@ def scene2():
                 running = False
                 switch_scene(None)
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_w:
                     move(hero, "up")
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_s:
                     move(hero, "down")
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_a:
                     move(hero, "left")
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_d:
                     move(hero, "right")
         screen.fill(pygame.Color("black"))
         sprite_group.draw(screen)
