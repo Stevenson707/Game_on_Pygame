@@ -25,13 +25,14 @@ def load_image(name, color_key=None):
 
 
 pygame.init()
-screen_size = (500, 500)
+screen_size = (550, 550)
 screen = pygame.display.set_mode(screen_size)
 FPS = 50
 
 tile_images = {
     'wall': load_image('bs1.jpg'),
-    'empty': load_image('grass_2.png')
+    'empty': load_image('grass_2.png'),
+    'road': load_image('box.png')
 }
 player_image = load_image('mario.png')
 
@@ -147,6 +148,8 @@ def generate_level(level):
                 Tile('empty', x, y)
                 new_player = Player(x, y)
                 level[y][x] = "."
+            elif level[y][x] == '+':
+                Tile('road', x, y)
     return new_player, x, y
 
 
@@ -169,7 +172,7 @@ def move(hero, movement):
 
 flPause = False
 camera = Camera()
-level_map = load_level("map.map")
+level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
 
