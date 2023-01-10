@@ -171,11 +171,14 @@ def move(hero, movement):
             hero.move(x + 1, y)
 
 
-flPause = False
+flPause, flPause2 = False, False
+music_on = True
 camera = Camera()
 level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
+
+
 
 def switch_scene(scene):
     global current_scene
@@ -183,7 +186,7 @@ def switch_scene(scene):
 
 
 def scene1():
-    global flPause
+    global flPause, music_on
     intro_text = ["                                        ",
                   "                                        ",
                   "                                        ",
@@ -224,15 +227,58 @@ def scene1():
                 switch_scene(None)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    switch_scene(scene2)
+                    switch_scene(level_scene1)
                     running = False
                     pygame.mixer.music.stop()
-                if event.key == pygame.K_ESCAPE:
+                elif event.key == pygame.K_ESCAPE:
                     running = False
                     pygame.mixer.music.stop()
                     switch_scene(None)
-                if event.key == pygame.K_SPACE:
+                elif event.key == pygame.K_SPACE:
                     flPause = not flPause
+                    if flPause:
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                elif event.key == pygame.K_DOWN:
+                    vol -= 0.1
+                    pygame.mixer.music.set_volume(vol)
+                elif event.key == pygame.K_UP:
+                    vol += 0.1
+                    pygame.mixer.music.set_volume(vol)
+                elif event.key == pygame.K_F10:
+                    music_on = False
+                    pygame.mixer.music.stop()
+                elif event.key == pygame.K_F9 and not music_on:
+                    music_on = True
+                    pygame.mixer.music.play(-1)
+        pygame.display.flip()
+
+
+def level_scene1():
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2
+    camera.update(hero)
+    pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
+    vol = 1.0
+    pygame.mixer.music.play(-1)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.mixer.music.stop()
+                switch_scene(None)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    move(hero, "up")
+                elif event.key == pygame.K_s:
+                    move(hero, "down")
+                elif event.key == pygame.K_a:
+                    move(hero, "left")
+                elif event.key == pygame.K_d:
+                    move(hero, "right")
+                elif event.key == pygame.K_SPACE:
+                    flPause2 = not flPause2
                     if flPause:
                         pygame.mixer.music.pause()
                     else:
@@ -247,28 +293,6 @@ def scene1():
                     pygame.mixer.music.stop()
                 if event.key == pygame.K_F9:
                     pygame.mixer.music.play(-1)
-
-        pygame.display.flip()
-
-
-def scene2():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera
-    camera.update(hero)
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                switch_scene(None)
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    move(hero, "up")
-                elif event.key == pygame.K_s:
-                    move(hero, "down")
-                elif event.key == pygame.K_a:
-                    move(hero, "left")
-                elif event.key == pygame.K_d:
-                    move(hero, "right")
         screen.fill(pygame.Color("black"))
         sprite_group.draw(screen)
         cursorPX, cursorPY = pygame.mouse.get_pos()
@@ -276,6 +300,18 @@ def scene2():
         hero_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
+
+
+def level_scene2():
+    global cursorPX, cursorPY, level_map2, hero, max_x, max_y, camera, flPause2
+    camera.update(hero)
+    pass
+
+
+def level_scene3():
+    global cursorPX, cursorPY, level_map3, hero, max_x, max_y, camera, flPause2
+    camera.update(hero)
+    pass
 
 
 switch_scene(scene1)
