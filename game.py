@@ -9,6 +9,7 @@ parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
 map_file = args.map
 
+
 def load_image(name, color_key=None):
     fullname = os.path.join('data', name)
     try:
@@ -176,7 +177,6 @@ level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
 
-
 def switch_scene(scene):
     global current_scene
     current_scene = scene
@@ -186,18 +186,19 @@ def scene1():
     global flPause
     intro_text = ["                                        ",
                   "                                        ",
-                  "                   Name first game on pygame               ",
+                  "                                        ",
+                  "                    Name first game on pygame               ",
                   "                                        ",
                   "                                        ",
-                  "                        Старт(Нажмите Enter)", "",
+                  "                         Старт(Нажмите Enter)", "",
                   "                                         ",
-                  "                        Выход(Нажмите Esc)",
+                  "                         Выход(Нажмите Esc)",
                   "                                        ",
                   "                                        ",
                   "                                        ",
-                  "                                     ",
-                  "                                    v1.0       Game developers:",
-                  "                                           S1notik and Stevenson",]
+                  "                                    v1.0",
+                  "                                                      Game developers:",
+                  "                                                 S1notik and Stevenson",]
     fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
@@ -242,6 +243,11 @@ def scene1():
                 if event.key == pygame.K_UP:
                     vol += 0.1
                     pygame.mixer.music.set_volume(vol)
+                if event.key == pygame.K_F10:
+                    pygame.mixer.music.stop()
+                if event.key == pygame.K_F9:
+                    pygame.mixer.music.play(-1)
+
         pygame.display.flip()
 
 
