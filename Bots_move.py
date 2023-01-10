@@ -13,8 +13,6 @@ enemy_y_change = 0
 lead_x_change = 0
 lead_y_change = 0
 
-
-
 lead_x += lead_x_change
 lead_y += lead_y_change
 

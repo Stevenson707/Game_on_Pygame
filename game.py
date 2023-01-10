@@ -2,12 +2,16 @@ import pygame
 import os
 from sys import exit
 import argparse
+import math
+
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
 map_file = args.map
+all_sprites = pygame.sprite.Group()
+Moveble_items = pygame.sprite.Group()
 
 
 def load_image(name, color_key=None):
@@ -35,7 +39,7 @@ tile_images = {
     'empty': load_image('grass_2.png'),
     'road': load_image('box.png')
 }
-player_image = load_image('Jacob_up.png')
+player_image = load_image('HT.png')
 
 tile_width = tile_height = 50
 
@@ -76,7 +80,25 @@ class Tile(Sprite):
         self.abs_pos = (self.rect.x, self.rect.y)
 
 
-class Player(Sprite):
+class MoveObject(pygame.sprite.Sprite):
+    def init(self, sheet, x=0, y=0):
+        super().__init__(all_sprites)
+        self.image = sheet
+        self.original_image = self.image
+        Moveble_items.add(self)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+
+    def rotate(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        rel_x, rel_y = mouse_x - self.x, mouse_y - self.y
+        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+        self.image = pygame.transform.rotate(self.original_image, int(angle))
+        self.rect = self.image.get_rect(center=self.position)
+
+
+class Player(MoveObject):
     def __init__(self, pos_x, pos_y):
         super().__init__(hero_group)
         self.image = player_image
@@ -179,7 +201,6 @@ camera = Camera()
 level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
-
 
 
 def switch_scene(scene):
@@ -291,7 +312,7 @@ def level_scene1():
                 elif event.key == pygame.K_F9 and not music_on_lvl2:
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
-        screen.fill(pygame.Color("black"))
+        screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
         cursorPX, cursorPY = pygame.mouse.get_pos()
         drawCursor(cursorPX, cursorPY)
