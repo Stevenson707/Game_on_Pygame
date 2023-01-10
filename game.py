@@ -171,8 +171,10 @@ def move(hero, movement):
             hero.move(x + 1, y)
 
 
-flPause, flPause2 = False, False
+flPause = False
+flPause2 = False
 music_on = True
+music_on_lvl2 = True
 camera = Camera()
 level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
@@ -256,7 +258,7 @@ def scene1():
 
 
 def level_scene1():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2
     camera.update(hero)
     pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
     vol = 1.0
@@ -277,21 +279,17 @@ def level_scene1():
                     move(hero, "left")
                 elif event.key == pygame.K_d:
                     move(hero, "right")
-                elif event.key == pygame.K_SPACE:
-                    flPause2 = not flPause2
-                    if flPause:
-                        pygame.mixer.music.pause()
-                    else:
-                        pygame.mixer.music.unpause()
-                if event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN:
                     vol -= 0.1
                     pygame.mixer.music.set_volume(vol)
-                if event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP:
                     vol += 0.1
                     pygame.mixer.music.set_volume(vol)
-                if event.key == pygame.K_F10:
+                elif event.key == pygame.K_F10:
+                    music_on_lvl2 = False
                     pygame.mixer.music.stop()
-                if event.key == pygame.K_F9:
+                elif event.key == pygame.K_F9 and not music_on_lvl2:
+                    music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
         screen.fill(pygame.Color("black"))
         sprite_group.draw(screen)
