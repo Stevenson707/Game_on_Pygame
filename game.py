@@ -35,7 +35,7 @@ tile_images = {
     'empty': load_image('grass_2.png'),
     'road': load_image('box.png')
 }
-player_image = load_image('mario.png')
+player_image = load_image('Jacob_up.png')
 
 tile_width = tile_height = 50
 
