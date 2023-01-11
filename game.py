@@ -121,11 +121,11 @@ class Player(pygame.sprite.Sprite):
    #  pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
 
 class Cursor(pygame.sprite.Sprite):  # Курсор
-    image = load_image("crosshair.png")
+    image = load_image("hm_crosshair.png")
     cursor = pygame.transform.scale(image, (15, 15))
     all_sprites.add()
 
-    def init(self, *group):
+    def __init__(self, *group):
         super().__init__(*group)
         self.image = Cursor.cursor
         self.rect = self.image.get_rect()
@@ -209,13 +209,11 @@ flPause2 = False
 music_on = True
 music_on_lvl2 = True
 camera = Camera()
-cursor = Cursor()
 level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
 FONT = 'font2.ttf'
 BUTTON_FONT_SIZE = 24
-LOGO_FONT_SIZE = 250
 
 
 def switch_scene(scene):
@@ -232,7 +230,7 @@ def scene1():
                   "                                        ",
                   "                            Start{Press Enter}",
                   "                                        ",
-                  "                             Exit[Press Esc]",
+                  "                             Exit{Press Esc}",
                   "                                        ",
                   "                                         v1.0",
                   "                                        ",
@@ -327,9 +325,17 @@ def level_scene1():
                 elif event.key == pygame.K_F9 and not music_on_lvl2:
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
+            elif event.type == pygame.MOUSEMOTION:
+                if pygame.mouse.get_focused():
+                    cursor.update(event.pos)
+
+        # while player.alive():
+           #  player.rotate(cursor.rect.centerx, cursor.rect.centery)
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
-        cursorPX, cursorPY = pygame.mouse.get_pos()
+        Cursors = pygame.sprite.Group()
+        cursor = Cursor(Cursors)
+        # cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
