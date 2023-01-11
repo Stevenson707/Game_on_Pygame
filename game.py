@@ -38,10 +38,10 @@ tile_images = {
     'empty': load_image('grass_2.png'),
     'road': load_image('box.png')
 }
-player_image = load_image('Jacob_up.png')
+player_image = load_image('Jacob_pewpew.png')
 
 tile_width = tile_height = 50
-
+ww
 
 class ScreenFrame(pygame.sprite.Sprite):
 
