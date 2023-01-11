@@ -5,7 +5,6 @@ import argparse
 import math
 
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
@@ -39,7 +38,7 @@ tile_images = {
     'empty': load_image('grass_2.png'),
     'road': load_image('box.png')
 }
-player_image = load_image('HT.png')
+player_image = load_image('Jacob_up.png')
 
 tile_width = tile_height = 50
 
@@ -81,7 +80,7 @@ class Tile(Sprite):
 
 
 class MoveObject(pygame.sprite.Sprite):
-    def init(self, sheet, x=0, y=0):
+    def __init__(self, sheet, x=0, y=0):
         super().__init__(all_sprites)
         self.image = sheet
         self.original_image = self.image
@@ -90,15 +89,14 @@ class MoveObject(pygame.sprite.Sprite):
         self.rect.centerx = x
         self.rect.centery = y
 
-    def rotate(self):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        rel_x, rel_y = mouse_x - self.x, mouse_y - self.y
+    def rotate(self, x, y):
+        rel_x, rel_y = x - self.rect.x, y - self.rect.y
         angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
         self.image = pygame.transform.rotate(self.original_image, int(angle))
-        self.rect = self.image.get_rect(center=self.position)
+        self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
 
 
-class Player(MoveObject):
+class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(hero_group)
         self.image = player_image
@@ -114,19 +112,32 @@ class Player(MoveObject):
             camera.apply(sprite)
 
 
-def drawCursor(x, y):
-    pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
-    pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
-    pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
-    pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
-    pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
-    pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+# def drawCursor(x, y):
+   #  pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
+    # pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
+    # pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
+   #  pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
+   #  pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
+   #  pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+
+class Cursor(pygame.sprite.Sprite):  # Курсор
+    image = load_image("crosshair.png")
+    cursor = pygame.transform.scale(image, (15, 15))
+    all_sprites.add()
+
+    def init(self, *group):
+        super().__init__(*group)
+        self.image = Cursor.cursor
+        self.rect = self.image.get_rect()
+
+    def update(self, *args):
+        self.rect.x = args[0][0] - self.rect.width // 2
+        self.rect.y = args[0][1] - self.rect.height // 2
 
 
 cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
 pygame.mouse.set_visible(False)
 player = None
-running = True
 clock = pygame.time.Clock()
 sprite_group = SpriteGroup()
 hero_group = SpriteGroup()
@@ -198,9 +209,13 @@ flPause2 = False
 music_on = True
 music_on_lvl2 = True
 camera = Camera()
+cursor = Cursor()
 level_map = load_level("the_map1.txt")
 hero, max_x, max_y = generate_level(level_map)
 current_scene = None
+FONT = 'font2.ttf'
+BUTTON_FONT_SIZE = 24
+LOGO_FONT_SIZE = 250
 
 
 def switch_scene(scene):
@@ -211,23 +226,23 @@ def switch_scene(scene):
 def scene1():
     global flPause, music_on
     intro_text = ["                                        ",
-                  "                                        ",
-                  "                                        ",
+
                   "                    Name first game on pygame               ",
                   "                                        ",
                   "                                        ",
-                  "                         Старт(Нажмите Enter)", "",
-                  "                                         ",
-                  "                         Выход(Нажмите Esc)",
+                  "                            Start{Press Enter}",
+                  "                                        ",
+                  "                             Exit[Press Esc]",
+                  "                                        ",
+                  "                                         v1.0",
                   "                                        ",
                   "                                        ",
                   "                                        ",
-                  "                                    v1.0",
-                  "                                                      Game developers:",
-                  "                                                 S1notik and Stevenson",]
+                  "                                                 Game developers:",
+                  "                                             S1notik and Stevenson",]
     fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
+    font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
     text_coord = 50
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color(72, 83, 84))
@@ -279,7 +294,7 @@ def scene1():
 
 
 def level_scene1():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor
     camera.update(hero)
     pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
     vol = 1.0
@@ -315,7 +330,6 @@ def level_scene1():
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
         cursorPX, cursorPY = pygame.mouse.get_pos()
-        drawCursor(cursorPX, cursorPY)
         hero_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
