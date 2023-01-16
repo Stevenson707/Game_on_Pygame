@@ -329,8 +329,9 @@ def level_scene1():
                 if pygame.mouse.get_focused():
                     cursor.update(event.pos)
 
-        while player.alive():
-            player.rotate(cursor.rect.centerx, cursor.rect.centery)
+
+        # while player.alive():
+           # player.rotate(cursor.rect.centerx, cursor.rect.centery)
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
         cursor = Cursor(constants.Cursors)
