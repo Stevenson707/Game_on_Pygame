@@ -41,7 +41,7 @@ tile_images = {
 player_image = load_image('Jacob_pewpew.png')
 
 tile_width = tile_height = 50
-ww
+
 
 class ScreenFrame(pygame.sprite.Sprite):
 
@@ -214,6 +214,7 @@ hero, max_x, max_y = generate_level(level_map)
 current_scene = None
 FONT = 'font2.ttf'
 BUTTON_FONT_SIZE = 24
+# player = Player()
 
 
 def switch_scene(scene):
@@ -228,11 +229,11 @@ def scene1():
                   "                    Name first game on pygame               ",
                   "                                        ",
                   "                                        ",
-                  "                            Start{Press Enter}",
+                  "                              Start{Press Enter}",
                   "                                        ",
-                  "                             Exit{Press Esc}",
+                  "                               Exit{Press Esc}",
                   "                                        ",
-                  "                                         v1.0",
+                  "                                           v1.0",
                   "                                        ",
                   "                                        ",
                   "                                        ",
@@ -243,7 +244,7 @@ def scene1():
     font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
     text_coord = 50
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color(72, 83, 84))
+        string_rendered = font.render(line, 1, pygame.Color(30, 4, 135))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
@@ -330,7 +331,7 @@ def level_scene1():
                     cursor.update(event.pos)
 
         # while player.alive():
-           #  player.rotate(cursor.rect.centerx, cursor.rect.centery)
+          #  player.rotate(cursor.rect.centerx, cursor.rect.centery)
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
         Cursors = pygame.sprite.Group()
