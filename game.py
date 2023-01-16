@@ -3,14 +3,14 @@ import os
 from sys import exit
 import argparse
 import math
+import Bots_move
+import constants
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
 map_file = args.map
-all_sprites = pygame.sprite.Group()
-Moveble_items = pygame.sprite.Group()
 
 
 def load_image(name, color_key=None):
@@ -81,10 +81,10 @@ class Tile(Sprite):
 
 class MoveObject(pygame.sprite.Sprite):
     def __init__(self, sheet, x=0, y=0):
-        super().__init__(all_sprites)
+        super().__init__(constants.all_sprites)
         self.image = sheet
         self.original_image = self.image
-        Moveble_items.add(self)
+        constants.Moveble_items.add(self)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
 class Cursor(pygame.sprite.Sprite):  # Курсор
     image = load_image("hm_crosshair.png")
     cursor = pygame.transform.scale(image, (15, 15))
-    all_sprites.add()
+    constants.all_sprites.add()
 
     def __init__(self, *group):
         super().__init__(*group)
@@ -214,7 +214,6 @@ hero, max_x, max_y = generate_level(level_map)
 current_scene = None
 FONT = 'font2.ttf'
 BUTTON_FONT_SIZE = 24
-# player = Player()
 
 
 def switch_scene(scene):
@@ -330,12 +329,11 @@ def level_scene1():
                 if pygame.mouse.get_focused():
                     cursor.update(event.pos)
 
-        # while player.alive():
-          #  player.rotate(cursor.rect.centerx, cursor.rect.centery)
+        while player.alive():
+            player.rotate(cursor.rect.centerx, cursor.rect.centery)
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
-        Cursors = pygame.sprite.Group()
-        cursor = Cursor(Cursors)
+        cursor = Cursor(constants.Cursors)
         # cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
         clock.tick(FPS)
