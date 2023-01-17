@@ -135,7 +135,7 @@ class Cursor(pygame.sprite.Sprite):  # Курсор
         self.rect.y = args[0][1] - self.rect.height // 2
 
 
-cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
+# cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
 pygame.mouse.set_visible(False)
 player = None
 clock = pygame.time.Clock()
@@ -206,11 +206,13 @@ def move(hero, movement):
 
 flPause = False
 flPause2 = False
+
 music_on = True
 music_on_lvl2 = True
+
 camera = Camera()
-level_map = load_level("the_map1.txt")
-hero, max_x, max_y = generate_level(level_map)
+cursor = Cursor(constants.Cursors)
+
 current_scene = None
 FONT = 'font2.ttf'
 BUTTON_FONT_SIZE = 24
@@ -293,6 +295,8 @@ def scene1():
 
 def level_scene1():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor
+    level_map = load_level("the_map1.txt")
+    hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
     pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
     vol = 1.0
@@ -325,11 +329,9 @@ def level_scene1():
                 elif event.key == pygame.K_F9 and not music_on_lvl2:
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
-            elif event.type == pygame.MOUSEMOTION:
-                if pygame.mouse.get_focused():
-                    cursor.update(event.pos)
-
-
+                elif event.type == pygame.MOUSEMOTION:
+                    if pygame.mouse.get_focused():
+                        cursor.update(event.pos)
         # while player.alive():
            # player.rotate(cursor.rect.centerx, cursor.rect.centery)
         screen.fill(pygame.Color(153, 19, 186))
