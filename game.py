@@ -35,12 +35,12 @@ FPS = 50
 
 tile_images = {
     'wall': load_image('bs1.jpg'),
-    'empty': load_image('grass_2.png'),
+    'empty': load_image('cover'),
     'road': load_image('box.png')
 }
 player_image = load_image('Jacob_pewpew.png')
 
-tile_width = tile_height = 50
+tile_width = tile_height = 48
 
 
 class ScreenFrame(pygame.sprite.Sprite):
@@ -239,7 +239,7 @@ def scene1():
                   "                                        ",
                   "                                        ",
                   "                                                 Game developers:",
-                  "                                             S1notik and Stevenson",]
+                  "                                             S1notik and Stevenson", ]
     fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
@@ -332,11 +332,9 @@ def level_scene1():
                 elif event.type == pygame.MOUSEMOTION:
                     if pygame.mouse.get_focused():
                         cursor.update(event.pos)
-        # while player.alive():
-           # player.rotate(cursor.rect.centerx, cursor.rect.centery)
+        cursor = Cursor(constants.Cursors)
         screen.fill(pygame.Color(153, 19, 186))
         sprite_group.draw(screen)
-        cursor = Cursor(constants.Cursors)
         # cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
         clock.tick(FPS)
