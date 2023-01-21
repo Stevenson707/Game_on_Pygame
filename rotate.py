@@ -1,7 +1,3 @@
-import math
-import pygame
-
-
 def rotate(self):
     mouse_x, mouse_y = pygame.mouse.get_pos()
     rel_x, rel_y = mouse_x - self.x, mouse_y - self.y
