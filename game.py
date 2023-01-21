@@ -232,6 +232,7 @@ def scene1():
                   "                                        v1.0",
                   "                                        ",
                   "                                        ",
+                  "                                        ",
                   "                                                      Game developers:",
                   "                                              S1notik and Stevenson", ]
     fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
