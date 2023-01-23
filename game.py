@@ -22,27 +22,27 @@ def load_image(name, color_key=None):
         raise SystemExit(message)
     image = image.convert_alpha()
     if color_key is not None:
-        if color_key is -1:
+        if color_key == -1:
             color_key = image.get_at((0, 0))
         image.set_colorkey(color_key)
     return image
 
 
 pygame.init()
-screen_size = (550, 550)
+screen_size = (750, 750)
 screen = pygame.display.set_mode(screen_size)
 FPS = 50
 
 tile_images = {
     'wall': load_image('bs1.jpg'),
-    'empty': load_image('grass_2.png'),
+    'empty': load_image('cover'),
     'road': load_image('box.png'),
     # 'bot': load_image('HT.png')
 }
 player_image = load_image('Jacob_pewpew.png')
 bot_image = load_image('HT.png')
 
-tile_width = tile_height = 50
+tile_width = tile_height = 48
 
 
 class ScreenFrame(pygame.sprite.Sprite):
@@ -61,9 +61,7 @@ class SpriteGroup(pygame.sprite.Group):
         for sprite in self:
             sprite.get_event(event)
 
-
 class Sprite(pygame.sprite.Sprite):
-
     def __init__(self, group):
         super().__init__(group)
         self.rect = None
@@ -91,12 +89,6 @@ class MoveObject(pygame.sprite.Sprite):
         self.rect.centerx = x
         self.rect.centery = y
 
-    def rotate(self, x, y):
-        rel_x, rel_y = x - self.rect.x, y - self.rect.y
-        angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-        self.image = pygame.transform.rotate(self.original_image, int(angle))
-        self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -113,6 +105,9 @@ class Player(pygame.sprite.Sprite):
         for sprite in sprite_group:
             camera.apply(sprite)
 
+    def rotate(self, angle):
+        self.rect = pygame.transform.rotate(self.rect, angle)
+
 
 class Bot(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -127,12 +122,13 @@ class Bot(pygame.sprite.Sprite):
 
 
 # def drawCursor(x, y):
-   #  pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
-    # pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
-    # pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
-   #  pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
-   #  pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
-   #  pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+    #pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
+   # pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
+   # pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
+  #  pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
+   # pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
+   # pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+
 
 class Cursor(pygame.sprite.Sprite):  # Курсор
     image = load_image("hm_crosshair.png")
@@ -150,7 +146,7 @@ class Cursor(pygame.sprite.Sprite):  # Курсор
 
 
 # cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
-pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(True)
 player = None
 clock = pygame.time.Clock()
 sprite_group = SpriteGroup()
@@ -233,7 +229,62 @@ cursor = Cursor(constants.Cursors)
 
 current_scene = None
 FONT = 'font2.ttf'
-BUTTON_FONT_SIZE = 24
+BUTTON_FONT_SIZE = 30
+objects = []
+font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
+
+
+class Button():
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+        self.alreadyPressed = False
+
+        self.fillColors = {
+            'normal': '#19141a0e',
+            'hover': '#141a180e',
+            'pressed': '#333333',
+        }
+
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        self.buttonSurf = font.render(buttonText, True, (30, 4, 135))
+
+        objects.append(self)
+
+    def process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.buttonSurface.fill(self.fillColors['normal'])
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill(self.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.buttonSurface.fill(self.fillColors['pressed'])
+                if self.onePress:
+                    self.onclickFunction()
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+            else:
+                self.alreadyPressed = False
+
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+        ])
+        screen.blit(self.buttonSurface, self.buttonRect)
+
+
+def myFunction():
+    print('Button Pressed')
+
+
+Button(275, 275, 190, 65, 'Start', myFunction)
+Button(275, 400, 190, 65, 'Close', myFunction)
 
 
 def switch_scene(scene):
@@ -242,39 +293,38 @@ def switch_scene(scene):
 
 
 def scene1():
-    global flPause, music_on
-    intro_text = ["                                        ",
-
-                  "                    Name first game on pygame               ",
-                  "                                        ",
-                  "                                        ",
-                  "                              Start{Press Enter}",
-                  "                                        ",
-                  "                               Exit{Press Esc}",
-                  "                                        ",
-                  "                                           v1.0",
-                  "                                        ",
-                  "                                        ",
-                  "                                        ",
-                  "                                                 Game developers:",
-                  "                                             S1notik and Stevenson",]
-    fon = pygame.transform.scale(load_image('fon2.jpg'), screen_size)
+    # global flPause, music_on
+    #intro_text = ["                                        ",
+        #          "                                        ",
+      #            "                  Name first game on pygame               ",
+         #         "                                        ",
+          #        "                           Start{Press Enter}",
+          #        "                                        ",
+            #      "                           Exit{Press Esc}",
+         #         "                                        ",
+          #        "                                        v1.0",
+           #       "                                        ",
+               #   "                                        ",
+            #      "                                        ",
+             #     "                                                      Game developers:",
+             #     "                                              S1notik and Stevenson", ]
+    fon = pygame.transform.scale(load_image('background'), screen_size)
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color(30, 4, 135))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
+   # text_coord = 50
+    #for line in intro_text:
+     #   string_rendered = font.render(line, 1, pygame.Color(30, 4, 135))
+    #    intro_rect = string_rendered.get_rect()
+      #  text_coord += 10
+       # intro_rect.top = text_coord
+       # intro_rect.x = 10
+      #  text_coord += intro_rect.height
+       # screen.blit(string_rendered, intro_rect)
 
     running = True
     pygame.mixer.music.load("HM2-Dust.mp3")
     vol = 1.0
     pygame.mixer.music.play(-1)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -308,6 +358,9 @@ def scene1():
                 elif event.key == pygame.K_F9 and not music_on:
                     music_on = True
                     pygame.mixer.music.play(-1)
+        for object in objects:
+            pygame.display.flip()
+            object.process()
         pygame.display.flip()
 
 
@@ -320,6 +373,7 @@ def level_scene1():
     vol = 1.0
     pygame.mixer.music.play(-1)
     running = True
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -347,15 +401,16 @@ def level_scene1():
                 elif event.key == pygame.K_F9 and not music_on_lvl2:
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
-                elif event.type == pygame.MOUSEMOTION:
-                    if pygame.mouse.get_focused():
-                        cursor.update(event.pos)
-        # while player.alive():
-           # player.rotate(cursor.rect.centerx, cursor.rect.centery)
+            elif event.type == pygame.MOUSEMOTION:
+                if pygame.mouse.get_focused():
+                    cursor.update(event.pos)
+        # Player.rotate(cursor.rect.centerx, cursor.rect.centery)
+          #if pygame.mouse.get_focused():
+            # constants.Cursors.draw(screen)
         screen.fill(pygame.Color(153, 19, 186))
+        constants.all_sprites.update()
         sprite_group.draw(screen)
-        cursor = Cursor(constants.Cursors)
-        # cursorPX, cursorPY = pygame.mouse.get_pos()
+        cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
