@@ -36,9 +36,11 @@ FPS = 50
 tile_images = {
     'wall': load_image('bs1.jpg'),
     'empty': load_image('grass_2.png'),
-    'road': load_image('box.png')
+    'road': load_image('box.png'),
+    # 'bot': load_image('HT.png')
 }
 player_image = load_image('Jacob_pewpew.png')
+bot_image = load_image('HT.png')
 
 tile_width = tile_height = 50
 
@@ -110,6 +112,18 @@ class Player(pygame.sprite.Sprite):
         self.pos = (x, y)
         for sprite in sprite_group:
             camera.apply(sprite)
+
+
+class Bot(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(hero_group)
+        self.image = bot_image
+        self.rect = self.image.get_rect().move(tile_width * pos_x + 15, tile_height * pos_y + 5)
+        self.pos = (pos_x, pos_y)
+        print(self.pos)
+
+    def move(self, x, y):
+        pass
 
 
 # def drawCursor(x, y):
@@ -184,7 +198,11 @@ def generate_level(level):
                 level[y][x] = "."
             elif level[y][x] == '+':
                 Tile('road', x, y)
-    return new_player, x, y
+            elif level[y][x] == 'B':
+                Tile('empty', x, y)
+                Bot(x, y)
+                level[y][x] = "."
+    return new_player, x, y,
 
 
 def move(hero, movement):
