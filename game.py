@@ -233,9 +233,17 @@ BUTTON_FONT_SIZE = 30
 objects = []
 font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
 
+button_start = False
+button_exit = False
+
+fps = 60
+fpsClock = pygame.time.Clock()
+
 
 class Button():
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+    global button_start, button_exit
+
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onclickFunction2=None, onePress=False):
         self.x = x
         self.y = y
         self.width = width
@@ -243,21 +251,23 @@ class Button():
         self.onclickFunction = onclickFunction
         self.onePress = onePress
         self.alreadyPressed = False
+        self.onclickFunction2 = onclickFunction2
 
         self.fillColors = {
-            'normal': '#19141a0e',
-            'hover': '#141a180e',
+            'normal': '#f70a98c0',
+            'hover': '#73184ec0',
             'pressed': '#333333',
         }
 
         self.buttonSurface = pygame.Surface((self.width, self.height))
         self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-        self.buttonSurf = font.render(buttonText, True, (30, 4, 135))
+        self.buttonSurf = font.render(buttonText, True, (47, 10, 194, 0.66))
 
         objects.append(self)
 
     def process(self):
+        global button_start, button_exit
         mousePos = pygame.mouse.get_pos()
         self.buttonSurface.fill(self.fillColors['normal'])
         if self.buttonRect.collidepoint(mousePos):
@@ -269,6 +279,13 @@ class Button():
                 elif not self.alreadyPressed:
                     self.onclickFunction()
                     self.alreadyPressed = True
+            if pygame.mouse.get_pressed(num_buttons=5)[0]:
+                self.buttonSurface.fill(self.fillColors['pressed'])
+                if self.onePress:
+                    self.onclickFunction2()
+                elif not self.alreadyPressed:
+                    self.onclickFunction2()
+                    self.alreadyPressed = True
             else:
                 self.alreadyPressed = False
 
@@ -279,12 +296,22 @@ class Button():
         screen.blit(self.buttonSurface, self.buttonRect)
 
 
-def myFunction():
-    print('Button Pressed')
+def pressButton():
+    global button_start, button_exit
+    if pygame.mouse.get_pressed(num_buttons=3)[0]:
+        button_start = True
+    print(button_start)
 
 
-Button(275, 275, 190, 65, 'Start', myFunction)
-Button(275, 400, 190, 65, 'Close', myFunction)
+def pressButton2():
+    global button_exit
+    if pygame.mouse.get_pressed(num_buttons=5)[0]:
+        button_exit = True
+    print(button_exit)
+
+
+Button(275, 275, 190, 65, 'Start', pressButton)
+Button(275, 400, 190, 65, 'Quit', pressButton2)
 
 
 def switch_scene(scene):
@@ -293,32 +320,34 @@ def switch_scene(scene):
 
 
 def scene1():
-    # global flPause, music_on
-    #intro_text = ["                                        ",
-        #          "                                        ",
-      #            "                  Name first game on pygame               ",
-         #         "                                        ",
-          #        "                           Start{Press Enter}",
-          #        "                                        ",
-            #      "                           Exit{Press Esc}",
-         #         "                                        ",
-          #        "                                        v1.0",
-           #       "                                        ",
-               #   "                                        ",
-            #      "                                        ",
-             #     "                                                      Game developers:",
-             #     "                                              S1notik and Stevenson", ]
+    global flPause, music_on, button_start, button_exit
+    intro_text = ["                                        ",
+                  "                                        ",
+                  "                             Name first game on pygame               ",
+                  "                                        ",
+                  "                                    ",
+                  "                                        ",
+                  "                                     ",
+                  "                                        ",
+                  "                                       ",
+                  "                                        ",
+                  "                                                       v1.0",
+                  "                                        ",
+                  "                                        ",
+                  "                                        ",
+                  "                                                                Game developers:",
+                  "                                                           S1notik and Stevenson", ]
     fon = pygame.transform.scale(load_image('background'), screen_size)
     screen.blit(fon, (0, 0))
-   # text_coord = 50
-    #for line in intro_text:
-     #   string_rendered = font.render(line, 1, pygame.Color(30, 4, 135))
-    #    intro_rect = string_rendered.get_rect()
-      #  text_coord += 10
-       # intro_rect.top = text_coord
-       # intro_rect.x = 10
-      #  text_coord += intro_rect.height
-       # screen.blit(string_rendered, intro_rect)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color(47, 10, 194))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
 
     running = True
     pygame.mixer.music.load("HM2-Dust.mp3")
@@ -358,10 +387,25 @@ def scene1():
                 elif event.key == pygame.K_F9 and not music_on:
                     music_on = True
                     pygame.mixer.music.play(-1)
+        try:
+            if button_start:
+                button_exit = False
+                switch_scene(level_scene1)
+                running = False
+                pygame.mixer.music.stop()
+            elif button_exit:
+                exit(1)
+                running = False
+                pygame.mixer.music.stop()
+                switch_scene(None)
+        except:
+            button_start = False
+            exit(1)
         for object in objects:
             pygame.display.flip()
             object.process()
         pygame.display.flip()
+        fpsClock.tick(fps)
 
 
 def level_scene1():
