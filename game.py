@@ -117,9 +117,6 @@ class Bot(pygame.sprite.Sprite):
         self.pos = (pos_x, pos_y)
         print(self.pos)
 
-    def move(self, x, y):
-        pass
-
 
 # def drawCursor(x, y):
     #pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
@@ -410,7 +407,7 @@ def scene1():
 
 def level_scene1():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor
-    level_map = load_level("the_map1.txt")
+    level_map = load_level("the_map3.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
     pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
