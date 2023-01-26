@@ -61,6 +61,7 @@ class SpriteGroup(pygame.sprite.Group):
         for sprite in self:
             sprite.get_event(event)
 
+
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, group):
         super().__init__(group)
@@ -95,7 +96,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__(hero_group)
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x + 10, tile_height * pos_y + 15)
         self.pos = (pos_x, pos_y)
 
     def move(self, x, y):
@@ -111,7 +112,7 @@ class Player(pygame.sprite.Sprite):
 
 class Bot(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
-        super().__init__(hero_group)
+        super().__init__(bot_group)
         self.image = bot_image
         self.rect = self.image.get_rect().move(tile_width * pos_x + 15, tile_height * pos_y + 5)
         self.pos = (pos_x, pos_y)
@@ -148,6 +149,7 @@ player = None
 clock = pygame.time.Clock()
 sprite_group = SpriteGroup()
 hero_group = SpriteGroup()
+bot_group = SpriteGroup()
 
 
 class Camera:
@@ -406,8 +408,8 @@ def scene1():
 
 
 def level_scene1():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor
-    level_map = load_level("the_map3.txt")
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor, player_image
+    level_map = load_level("the_map1.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
     pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
@@ -453,6 +455,7 @@ def level_scene1():
         sprite_group.draw(screen)
         cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
+        bot_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
 
