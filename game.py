@@ -455,7 +455,7 @@ def level_scene1():
         sprite_group.draw(screen)
         cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
-        bot_group.draw(screen)
+        # bot_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
 
