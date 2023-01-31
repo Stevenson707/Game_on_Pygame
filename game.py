@@ -2,10 +2,7 @@ import pygame
 import os
 from sys import exit
 import argparse
-import math
-import Bots_move
-import constants
-
+from data.code_dop import constants
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
@@ -34,13 +31,13 @@ screen = pygame.display.set_mode(screen_size)
 FPS = 50
 
 tile_images = {
-    'wall': load_image('bs1.jpg'),
-    'empty': load_image('cover'),
-    'road': load_image('box.png'),
-    # 'bot': load_image('HT.png')
+    'wall': load_image('sprites/bs1.jpg'),
+    'empty': load_image('sprites/cover'),
+    'road': load_image('sprites/box.png'),
+    # 'bot': load_image('sprites/HT.png')
 }
-player_image = load_image('Jacob_pewpew.png')
-bot_image = load_image('HT.png')
+player_image = load_image('sprites/Jacob_pewpew.png')
+bot_image = load_image('sprites/HT.png')
 
 tile_width = tile_height = 48
 
@@ -129,7 +126,7 @@ class Bot(pygame.sprite.Sprite):
 
 
 class Cursor(pygame.sprite.Sprite):  # Курсор
-    image = load_image("hm_crosshair.png")
+    image = load_image("sprites/hm_crosshair.png")
     cursor = pygame.transform.scale(image, (15, 15))
     constants.all_sprites.add()
 
@@ -227,7 +224,7 @@ camera = Camera()
 cursor = Cursor(constants.Cursors)
 
 current_scene = None
-FONT = 'font2.ttf'
+FONT = 'data/sprites/font2.ttf'
 BUTTON_FONT_SIZE = 30
 objects = []
 font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
@@ -336,7 +333,7 @@ def scene1():
                   "                                        ",
                   "                                                                Game developers:",
                   "                                                           S1notik and Stevenson", ]
-    fon = pygame.transform.scale(load_image('background'), screen_size)
+    fon = pygame.transform.scale(load_image('sprites/background'), screen_size)
     screen.blit(fon, (0, 0))
     text_coord = 50
     for line in intro_text:
@@ -349,7 +346,7 @@ def scene1():
         screen.blit(string_rendered, intro_rect)
 
     running = True
-    pygame.mixer.music.load("HM2-Dust.mp3")
+    pygame.mixer.music.load("data/music/HM2-Dust.mp3")
     vol = 1.0
     pygame.mixer.music.play(-1)
 
@@ -409,10 +406,10 @@ def scene1():
 
 def level_scene1():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor, player_image
-    level_map = load_level("the_map1.txt")
+    level_map = load_level("levels/the_map1.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
-    pygame.mixer.music.load("Kaito Shoma - Hotline.mp3")
+    pygame.mixer.music.load("data/music/Kaito Shoma - Hotline.mp3")
     vol = 1.0
     pygame.mixer.music.play(-1)
     running = True
