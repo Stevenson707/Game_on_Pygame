@@ -115,15 +115,13 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 10, tile_height * pos_y + 15)
         self.pos = (pos_x, pos_y)
+        self.orig = self.image
        # self.og_surf = pygame.transform.smoothscale(pygame.image.load("data/sprites/bullet.png").convert(), (100, 100))
         #self.surf = self.og_surf
-        self.orig = self.image
         #self.rect = self.surf.get_rect(center=(400, 400))
         #self.pos = (pos_x, pos_y)
 
         #self.speed = speed
-        self.rect_x = pos_x
-        self.rect_y = pos_y
 
     def move(self, x, y):
         camera.dx -= tile_width * (x - self.pos[0])
@@ -149,10 +147,10 @@ class Player(pygame.sprite.Sprite):
 
     def rotate(self):
         x, y, w, h = self.rect
-        direction = pygame.mouse.get_pos() - Vector2(x + w // 2, y = h // 2)
+        direction = pygame.mouse.get_pos() - Vector2(x + w // 2, y + h // 2)
         radius, angle = direction.as_polar()
-        self.image = pygame.transform.rotate(self.orig, -angle - 90)
-        self.rect = self.image.get_rect()
+        self.image = pygame.transform.rotate(self.orig, -angle - 360)
+        self.rect = self.image.get_rect(center=self.rect.center)
 
 
 class Bot(pygame.sprite.Sprite):
