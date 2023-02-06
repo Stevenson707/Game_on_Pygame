@@ -462,6 +462,14 @@ def level_scene1():
     running = True
     presses = pygame.key.get_pressed()
 
+    # Удаление неподвижного спрайта персонажа
+    count = 0
+    for i in hero_group:
+        if count > 0:
+            i.kill()
+            count += 1
+        count += 1
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
