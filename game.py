@@ -3,6 +3,8 @@ import os
 from sys import exit
 import argparse
 from data.code_dop import constants
+from pygame.math import Vector2
+from pygame import K_a, K_s, K_d, K_w
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
@@ -38,6 +40,7 @@ tile_images = {
 }
 player_image = load_image('sprites/Jacob_pewpew.png')
 bot_image = load_image('sprites/HT.png')
+# bullet_image = load_image("sprites/bullet.png")
 
 tile_width = tile_height = 48
 
@@ -88,6 +91,23 @@ class MoveObject(pygame.sprite.Sprite):
         self.rect.centery = y
 
 
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 20))
+        self.image.fill(pygame.Color("yellow"))
+        self.rect = self.image.get_rect()
+        self.rect.bottom = y
+        self.rect.centerx = x
+        self.speedy = -10
+
+    def update(self):
+        self.rect.y += self.speedy
+        # убить, если он заходит за верхнюю часть экрана
+        if self.rect.bottom < 0:
+            self.kill()
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(hero_group)
@@ -95,6 +115,15 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x + 10, tile_height * pos_y + 15)
         self.pos = (pos_x, pos_y)
+       # self.og_surf = pygame.transform.smoothscale(pygame.image.load("data/sprites/bullet.png").convert(), (100, 100))
+        #self.surf = self.og_surf
+        self.orig = self.image
+        #self.rect = self.surf.get_rect(center=(400, 400))
+        #self.pos = (pos_x, pos_y)
+
+        #self.speed = speed
+        self.rect_x = pos_x
+        self.rect_y = pos_y
 
     def move(self, x, y):
         camera.dx -= tile_width * (x - self.pos[0])
@@ -103,8 +132,27 @@ class Player(pygame.sprite.Sprite):
         for sprite in sprite_group:
             camera.apply(sprite)
 
-    def rotate(self, angle):
-        self.rect = pygame.transform.rotate(self.rect, angle)
+    # def update(self, keys):
+        #if keys[K_a]:
+        #    self.rect.x -= self.speed
+        #if keys[K_d]:
+         #   self.rect.x += self.speed
+        #if keys[K_s]:
+          #  self.rect.y += self.speed
+        #if keys[K_w]:
+         #   self.rect.y -= self.speed
+
+    def shoot(self):
+        bullet = Bullet(self.rect.centerx, self.rect.top)
+        constants.all_sprites.add(bullet)
+        constants.bullets.add(bullet)
+
+    def rotate(self):
+        x, y, w, h = self.rect
+        direction = pygame.mouse.get_pos() - Vector2(x + w // 2, y = h // 2)
+        radius, angle = direction.as_polar()
+        self.image = pygame.transform.rotate(self.orig, -angle - 90)
+        self.rect = self.image.get_rect()
 
 
 class Bot(pygame.sprite.Sprite):
@@ -234,6 +282,7 @@ button_exit = False
 
 fps = 60
 fpsClock = pygame.time.Clock()
+player_coords = Player(8, 9)
 
 
 class Button():
@@ -413,6 +462,7 @@ def level_scene1():
     vol = 1.0
     pygame.mixer.music.play(-1)
     running = True
+    presses = pygame.key.get_pressed()
 
     while running:
         for event in pygame.event.get():
@@ -444,9 +494,17 @@ def level_scene1():
             elif event.type == pygame.MOUSEMOTION:
                 if pygame.mouse.get_focused():
                     cursor.update(event.pos)
+
+        for x in constants.all_sprites:
+            x.move(presses)
+            screen.blit(x.surf, x.rect)
         # Player.rotate(cursor.rect.centerx, cursor.rect.centery)
           #if pygame.mouse.get_focused():
             # constants.Cursors.draw(screen)
+        constants.all_sprites.update()
+
+        player_coords.rotate()
+
         screen.fill(pygame.Color(153, 19, 186))
         constants.all_sprites.update()
         sprite_group.draw(screen)
@@ -473,5 +531,3 @@ switch_scene(scene1)
 while current_scene is not None:
     current_scene()
 pygame.quit()
-
-#
