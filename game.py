@@ -38,7 +38,7 @@ tile_images = {
     'road': load_image('sprites/box.png'),
     # 'bot': load_image('sprites/HT.png')
 }
-player_image = load_image('sprites/Jacob_pewpew.png')
+player_image = load_image('sprites/Jacob_pewpew.png').convert_alpha()
 bot_image = load_image('sprites/HT.png')
 # bullet_image = load_image("sprites/bullet.png")
 
@@ -80,17 +80,6 @@ class Tile(Sprite):
         self.abs_pos = (self.rect.x, self.rect.y)
 
 
-class MoveObject(pygame.sprite.Sprite):
-    def __init__(self, sheet, x=0, y=0):
-        super().__init__(constants.all_sprites)
-        self.image = sheet
-        self.original_image = self.image
-        constants.Moveble_items.add(self)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.centery = y
-
-
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -120,8 +109,6 @@ class Player(pygame.sprite.Sprite):
         #self.surf = self.og_surf
         #self.rect = self.surf.get_rect(center=(400, 400))
         #self.pos = (pos_x, pos_y)
-
-        #self.speed = speed
 
     def move(self, x, y):
         camera.dx -= tile_width * (x - self.pos[0])
@@ -159,34 +146,20 @@ class Bot(pygame.sprite.Sprite):
         self.image = bot_image
         self.rect = self.image.get_rect().move(tile_width * pos_x + 15, tile_height * pos_y + 5)
         self.pos = (pos_x, pos_y)
-        print(self.pos)
 
 
-# def drawCursor(x, y):
-    #pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
-   # pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
-   # pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
-  #  pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
-   # pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
-   # pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
+
+def drawCursor(x, y):
+    pygame.draw.circle(screen, (255, 255, 255), (x, y), 20, 1)
+    pygame.draw.circle(screen, (255, 255, 255), (x, y), 1)
+    pygame.draw.line(screen, (255, 255, 255), (x - 24, y), (x - 16, y))
+    pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
+    pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
+    pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
 
 
-class Cursor(pygame.sprite.Sprite):  # Курсор
-    image = load_image("sprites/hm_crosshair.png")
-    cursor = pygame.transform.scale(image, (15, 15))
-    constants.all_sprites.add()
 
-    def __init__(self, *group):
-        super().__init__(*group)
-        self.image = Cursor.cursor
-        self.rect = self.image.get_rect()
-
-    def update(self, *args):
-        self.rect.x = args[0][0] - self.rect.width // 2
-        self.rect.y = args[0][1] - self.rect.height // 2
-
-
-# cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
+cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
 pygame.mouse.set_visible(True)
 player = None
 clock = pygame.time.Clock()
@@ -267,7 +240,6 @@ music_on = True
 music_on_lvl2 = True
 
 camera = Camera()
-cursor = Cursor(constants.Cursors)
 
 current_scene = None
 FONT = 'data/sprites/font2.ttf'
@@ -452,7 +424,7 @@ def scene1():
 
 
 def level_scene1():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, cursor, player_image
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image
     level_map = load_level("levels/the_map1.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
@@ -461,6 +433,7 @@ def level_scene1():
     pygame.mixer.music.play(-1)
     running = True
     presses = pygame.key.get_pressed()
+    pygame.mouse.set_visible(False)
 
     # Удаление неподвижного спрайта персонажа
     count = 0
@@ -497,24 +470,22 @@ def level_scene1():
                 elif event.key == pygame.K_F9 and not music_on_lvl2:
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
-            elif event.type == pygame.MOUSEMOTION:
-                if pygame.mouse.get_focused():
-                    cursor.update(event.pos)
 
         for x in constants.all_sprites:
             x.move(presses)
             screen.blit(x.surf, x.rect)
-        # Player.rotate(cursor.rect.centerx, cursor.rect.centery)
-          #if pygame.mouse.get_focused():
-            # constants.Cursors.draw(screen)
         constants.all_sprites.update()
 
         player_coords.rotate()
 
+        constants.all_sprites.draw(screen)
+        cursorPX, cursorPY = pygame.mouse.get_pos()
+        drawCursor(cursorPX, cursorPY)
+        pygame.display.update()
+
         screen.fill(pygame.Color(153, 19, 186))
         constants.all_sprites.update()
         sprite_group.draw(screen)
-        cursorPX, cursorPY = pygame.mouse.get_pos()
         hero_group.draw(screen)
         # bot_group.draw(screen)
         clock.tick(FPS)
