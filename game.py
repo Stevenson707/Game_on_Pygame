@@ -333,6 +333,16 @@ def switch_scene(scene):
     global current_scene
     current_scene = scene
 
+# Доработать! Нужно сделать так, чтобы боты не удалялись все сразу
+def shoot(mouse_x, mouse_y, hero_x, hero_y):
+    pygame.draw.line(screen, (255, 0, 0), (408, 456), (mouse_x, mouse_y), 5)
+    print(bot_group)
+    for i in bot_group:
+        if 384 < mouse_x < 432 and 576 < mouse_y < 624:
+            i.kill()
+        elif 96 < mouse_x < 144 and 240 < mouse_y < 288:
+            i.kill()
+
 
 def scene1():
     global flPause, music_on, button_start, button_exit
@@ -471,6 +481,11 @@ def level_scene1():
                     music_on_lvl2 = True
                     pygame.mixer.music.play(-1)
 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = event.pos
+                hero_x, hero_y = hero.pos
+                shoot(mouse_x, mouse_y, hero_x, hero_y)
+
         for x in constants.all_sprites:
             x.move(presses)
             screen.blit(x.surf, x.rect)
@@ -487,7 +502,7 @@ def level_scene1():
         constants.all_sprites.update()
         sprite_group.draw(screen)
         hero_group.draw(screen)
-        # bot_group.draw(screen)
+        bot_group.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
 
