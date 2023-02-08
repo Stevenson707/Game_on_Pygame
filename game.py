@@ -36,7 +36,7 @@ tile_images = {
     'wall': load_image('sprites/bs1.jpg'),
     'empty': load_image('sprites/cover'),
     'road': load_image('sprites/box.png'),
-    # 'bot': load_image('sprites/HT.png')
+    'bot_on_grass': load_image('sprites/bot_on_grass.png')
 }
 player_image = load_image('sprites/Jacob_pewpew.png').convert_alpha()
 bot_image = load_image('sprites/HT.png')
@@ -213,6 +213,8 @@ def generate_level(level):
                 Tile('empty', x, y)
                 Bot(x, y)
                 level[y][x] = "."
+            elif level[y][x] == 'Q':
+                Tile('bot_on_grass', x, y)
     return new_player, x, y,
 
 
@@ -333,15 +335,19 @@ def switch_scene(scene):
     global current_scene
     current_scene = scene
 
-# Доработать! Нужно сделать так, чтобы боты не удалялись все сразу
-def shoot(mouse_x, mouse_y, hero_x, hero_y):
+
+lst = [0, 0]
+
+
+# Доработать!!! Экран не совпадает с полем
+def shoot(mouse_x, mouse_y, hero_x, hero_y, lst):
     pygame.draw.line(screen, (255, 0, 0), (408, 456), (mouse_x, mouse_y), 5)
-    print(bot_group)
-    for i in bot_group:
-        if 384 < mouse_x < 432 and 576 < mouse_y < 624:
-            i.kill()
-        elif 96 < mouse_x < 144 and 240 < mouse_y < 288:
-            i.kill()
+
+    field_mouse_x = mouse_x // 48 + lst[0]
+    field_mouse_y = mouse_y // 48 - lst[1]
+
+    print('field', field_mouse_x, field_mouse_y)
+    print('mouse', mouse_x, mouse_y)
 
 
 def scene1():
@@ -434,7 +440,7 @@ def scene1():
 
 
 def level_scene1():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
     level_map = load_level("levels/the_map1.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
@@ -444,6 +450,7 @@ def level_scene1():
     running = True
     presses = pygame.key.get_pressed()
     pygame.mouse.set_visible(False)
+    old_pos = ()
 
     # Удаление неподвижного спрайта персонажа
     count = 0
@@ -459,15 +466,32 @@ def level_scene1():
                 running = False
                 pygame.mixer.music.stop()
                 switch_scene(None)
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
+                    old_pos = hero.pos
                     move(hero, "up")
+                    if old_pos != hero.pos:
+                        lst[1] += 1
+
                 elif event.key == pygame.K_s:
+                    old_pos = hero.pos
                     move(hero, "down")
+                    if old_pos != hero.pos:
+                        lst[1] -= 1
+
                 elif event.key == pygame.K_a:
+                    old_pos = hero.pos
                     move(hero, "left")
+                    if old_pos != hero.pos:
+                        lst[0] -= 1
+
                 elif event.key == pygame.K_d:
+                    old_pos = hero.pos
                     move(hero, "right")
+                    if old_pos != hero.pos:
+                        lst[0] += 1
+
                 elif event.key == pygame.K_DOWN:
                     vol -= 0.1
                     pygame.mixer.music.set_volume(vol)
@@ -484,7 +508,7 @@ def level_scene1():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 hero_x, hero_y = hero.pos
-                shoot(mouse_x, mouse_y, hero_x, hero_y)
+                shoot(mouse_x, mouse_y, hero_x, hero_y, lst)
 
         for x in constants.all_sprites:
             x.move(presses)
