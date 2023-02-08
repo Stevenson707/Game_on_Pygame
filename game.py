@@ -547,3 +547,4 @@ switch_scene(scene1)
 while current_scene is not None:
     current_scene()
 pygame.quit()
+# print
