@@ -4,12 +4,20 @@ from sys import exit
 import argparse
 from data.code_dop import constants
 from pygame.math import Vector2
-from pygame import K_a, K_s, K_d, K_w
+import sqlite3
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
 map_file = args.map
+
+
+con = sqlite3.connect("data/data_base/Game_on_Pygame.sqlite")
+CUR = con.cursor()
+
+# result = CUR.execute("""SELECT title FROM films WHERE duration <= 85""").fetchall()
+# for item in result:
+#     print(item[0])
 
 
 def load_image(name, color_key=None):
@@ -337,17 +345,95 @@ def switch_scene(scene):
 
 
 lst = [0, 0]
+flag1 = True
+flag2 = True
+flag3 = True
 
 
-# Доработать!!! Экран не совпадает с полем
-def shoot(mouse_x, mouse_y, hero_x, hero_y, lst):
+# Стрельба для уровня 1
+def shoot(mouse_x, mouse_y, lst):
+    global flag1, flag2, flag3, CUR
     pygame.draw.line(screen, (255, 0, 0), (408, 456), (mouse_x, mouse_y), 5)
 
-    field_mouse_x = mouse_x // 48 + lst[0]
-    field_mouse_y = mouse_y // 48 - lst[1]
+    mouse_orig_x = mouse_x
+    mouse_orig_y = mouse_y
 
-    print('field', field_mouse_x, field_mouse_y)
-    print('mouse', mouse_x, mouse_y)
+    # изменение X мыши для хода в лево
+    if lst[0] < 0:
+        mouse_x = mouse_x + lst[0] * 48
+
+    # изменение Y мыши для хода в верх
+    if lst[1] > 0:
+        mouse_y = mouse_y - lst[1] * 48
+
+    # изменение X мыши для хода в право
+    if lst[0] > 0:
+        mouse_x = mouse_x + lst[0] * 48
+
+    # изменение Y мыши для хода в низ
+    if lst[1] < 0:
+        mouse_y = mouse_y - lst[1] * 48
+
+    if 624 <= mouse_x <= 672 and 48 <= mouse_y <= 96 and flag1:
+        count = 0
+        for i in sprite_group:
+            if count == 34:
+                i.kill()
+                flag1 = False
+                result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                con.commit()
+            count += 1
+
+    if 144 <= mouse_x <= 192 and 627 <= mouse_y <= 720 and flag2:
+        count = 0
+        for i in sprite_group:
+            if not flag1:
+                if count == 296:
+                    i.kill()
+                    flag2 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
+            else:
+                if count == 297:
+                    i.kill()
+                    flag2 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
+
+    if 768 <= mouse_x <= 816 and 816 <= mouse_y <= 864 and flag3:
+        count = 0
+        for i in sprite_group:
+            if not flag2 and not flag1:
+                if count == 371:
+                    i.kill()
+                    flag3 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
+            elif not flag2 and flag1:
+                if count == 372:
+                    i.kill()
+                    flag3 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
+            elif flag2 and not flag1:
+                if count == 372:
+                    print("Yes")
+                    i.kill()
+                    flag3 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
+            else:
+                if count == 373:
+                    i.kill()
+                    flag3 = False
+                    result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
+                    con.commit()
+                count += 1
 
 
 def scene1():
@@ -439,8 +525,30 @@ def scene1():
         fpsClock.tick(fps)
 
 
+def score():
+    num = CUR.execute("""SELECT kills FROM score_for_levels""").fetchall()
+    intro_text = f"score: {num[0][0]}"
+
+    fon = pygame.transform.scale(load_image('sprites/box.png'), (1, 1))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 10
+    string_rendered = font.render(intro_text, 1, pygame.Color((0, 0, 255)))
+    intro_rect = string_rendered.get_rect()
+    text_coord += 10
+    intro_rect.top = text_coord
+    intro_rect.x = 10
+    text_coord += intro_rect.height
+    screen.blit(string_rendered, intro_rect)
+    return num[0][0]
+
+
 def level_scene1():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
+    for i in sprite_group:
+        i.kill()
+    for i in bot_group:
+        i.kill()
     level_map = load_level("levels/the_map1.txt")
     hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
@@ -461,6 +569,10 @@ def level_scene1():
         count += 1
 
     while running:
+        if score() == 3:
+            running = False
+            level_scene2()
+            return
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -508,7 +620,7 @@ def level_scene1():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
                 hero_x, hero_y = hero.pos
-                shoot(mouse_x, mouse_y, hero_x, hero_y, lst)
+                shoot(mouse_x, mouse_y, lst)
 
         for x in constants.all_sprites:
             x.move(presses)
@@ -532,19 +644,103 @@ def level_scene1():
 
 
 def level_scene2():
-    global cursorPX, cursorPY, level_map2, hero, max_x, max_y, camera, flPause2
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
+    for i in sprite_group:
+        i.kill()
+    for i in bot_group:
+        i.kill()
+    level_map = load_level("levels/the_map2.txt")
+    hero, max_x, max_y = generate_level(level_map)
     camera.update(hero)
-    pass
+    pygame.mixer.music.load("data/music/Kaito Shoma - Hotline.mp3")
+    vol = 1.0
+    pygame.mixer.music.play(-1)
+    running = True
+    presses = pygame.key.get_pressed()
+    pygame.mouse.set_visible(False)
+    old_pos = ()
 
+    # Удаление неподвижного спрайта персонажа
+    count = 0
+    for i in hero_group:
+        if count > 0:
+            i.kill()
+            count += 1
+        count += 1
 
-def level_scene3():
-    global cursorPX, cursorPY, level_map3, hero, max_x, max_y, camera, flPause2
-    camera.update(hero)
-    pass
+    while running:
+        score()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.mixer.music.stop()
+                switch_scene(None)
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    old_pos = hero.pos
+                    move(hero, "up")
+                    if old_pos != hero.pos:
+                        lst[1] += 1
+
+                elif event.key == pygame.K_s:
+                    old_pos = hero.pos
+                    move(hero, "down")
+                    if old_pos != hero.pos:
+                        lst[1] -= 1
+
+                elif event.key == pygame.K_a:
+                    old_pos = hero.pos
+                    move(hero, "left")
+                    if old_pos != hero.pos:
+                        lst[0] -= 1
+
+                elif event.key == pygame.K_d:
+                    old_pos = hero.pos
+                    move(hero, "right")
+                    if old_pos != hero.pos:
+                        lst[0] += 1
+
+                elif event.key == pygame.K_DOWN:
+                    vol -= 0.1
+                    pygame.mixer.music.set_volume(vol)
+                elif event.key == pygame.K_UP:
+                    vol += 0.1
+                    pygame.mixer.music.set_volume(vol)
+                elif event.key == pygame.K_F10:
+                    music_on_lvl2 = False
+                    pygame.mixer.music.stop()
+                elif event.key == pygame.K_F9 and not music_on_lvl2:
+                    music_on_lvl2 = True
+                    pygame.mixer.music.play(-1)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = event.pos
+                hero_x, hero_y = hero.pos
+                shoot(mouse_x, mouse_y, lst)
+
+        for x in constants.all_sprites:
+            x.move(presses)
+            screen.blit(x.surf, x.rect)
+        constants.all_sprites.update()
+
+        player_coords.rotate()
+
+        constants.all_sprites.draw(screen)
+        cursorPX, cursorPY = pygame.mouse.get_pos()
+        drawCursor(cursorPX, cursorPY)
+        pygame.display.update()
+
+        screen.fill(pygame.Color(153, 19, 186))
+        constants.all_sprites.update()
+        sprite_group.draw(screen)
+        hero_group.draw(screen)
+        bot_group.draw(screen)
+        clock.tick(FPS)
+        pygame.display.flip()
 
 
 switch_scene(scene1)
 while current_scene is not None:
     current_scene()
 pygame.quit()
-# print
