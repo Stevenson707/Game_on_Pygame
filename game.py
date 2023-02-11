@@ -5,6 +5,7 @@ import argparse
 from data.code_dop import constants
 from pygame.math import Vector2
 import sqlite3
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
@@ -14,10 +15,6 @@ map_file = args.map
 
 con = sqlite3.connect("data/data_base/Game_on_Pygame.sqlite")
 CUR = con.cursor()
-
-# result = CUR.execute("""SELECT title FROM films WHERE duration <= 85""").fetchall()
-# for item in result:
-#     print(item[0])
 
 
 def load_image(name, color_key=None):
@@ -48,7 +45,6 @@ tile_images = {
 }
 player_image = load_image('sprites/Jacob_pewpew.png').convert_alpha()
 bot_image = load_image('sprites/HT.png')
-# bullet_image = load_image("sprites/bullet.png")
 
 tile_width = tile_height = 48
 
@@ -154,7 +150,6 @@ class Bot(pygame.sprite.Sprite):
         self.image = bot_image
         self.rect = self.image.get_rect().move(tile_width * pos_x + 15, tile_height * pos_y + 5)
         self.pos = (pos_x, pos_y)
-
 
 
 def drawCursor(x, y):
@@ -350,7 +345,7 @@ flag2 = True
 flag3 = True
 
 
-# Стрельба для уровня 1
+# Стрельба для уровней
 def shoot(mouse_x, mouse_y, lst):
     global flag1, flag2, flag3, CUR
     pygame.draw.line(screen, (255, 0, 0), (408, 456), (mouse_x, mouse_y), 5)
@@ -543,6 +538,13 @@ def score():
     return num[0][0]
 
 
+def game_end():
+    print("GAME END")
+    result = CUR.execute("""UPDATE score_for_levels SET kills = 0""").fetchall()
+    con.commit()
+    return True
+
+
 def level_scene1():
     global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
     for i in sprite_group:
@@ -571,7 +573,7 @@ def level_scene1():
     while running:
         if score() == 3:
             running = False
-            level_scene2()
+            switch_scene(level_scene2)
             return
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -644,7 +646,7 @@ def level_scene1():
 
 
 def level_scene2():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst, game
     for i in sprite_group:
         i.kill()
     for i in bot_group:
@@ -669,7 +671,14 @@ def level_scene2():
         count += 1
 
     while running:
-        score()
+        if score() == 6:
+            if game_end():
+                for i in sprite_group:
+                    i.kill()
+                for i in bot_group:
+                    i.kill()
+                for i in hero_group:
+                    i.kill()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
