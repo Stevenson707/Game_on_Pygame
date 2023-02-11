@@ -5,13 +5,11 @@ import argparse
 from data.code_dop import constants
 from pygame.math import Vector2
 import sqlite3
-import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("map", type=str, nargs="?", default="map.map")
 args = parser.parse_args()
 map_file = args.map
-
 
 con = sqlite3.connect("data/data_base/Game_on_Pygame.sqlite")
 CUR = con.cursor()
@@ -109,10 +107,6 @@ class Player(pygame.sprite.Sprite):
             tile_width * pos_x + 10, tile_height * pos_y + 15)
         self.pos = (pos_x, pos_y)
         self.orig = self.image
-       # self.og_surf = pygame.transform.smoothscale(pygame.image.load("data/sprites/bullet.png").convert(), (100, 100))
-        #self.surf = self.og_surf
-        #self.rect = self.surf.get_rect(center=(400, 400))
-        #self.pos = (pos_x, pos_y)
 
     def move(self, x, y):
         camera.dx -= tile_width * (x - self.pos[0])
@@ -120,16 +114,6 @@ class Player(pygame.sprite.Sprite):
         self.pos = (x, y)
         for sprite in sprite_group:
             camera.apply(sprite)
-
-    # def update(self, keys):
-        #if keys[K_a]:
-        #    self.rect.x -= self.speed
-        #if keys[K_d]:
-         #   self.rect.x += self.speed
-        #if keys[K_s]:
-          #  self.rect.y += self.speed
-        #if keys[K_w]:
-         #   self.rect.y -= self.speed
 
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
@@ -159,7 +143,6 @@ def drawCursor(x, y):
     pygame.draw.line(screen, (255, 255, 255), (x + 24, y), (x + 16, y))
     pygame.draw.line(screen, (255, 255, 255), (x, y - 24), (x, y - 16))
     pygame.draw.line(screen, (255, 255, 255), (x, y + 24), (x, y + 16))
-
 
 
 cursorPX, cursorPY = 500 // 3, 500 // 2 - 200
@@ -240,21 +223,16 @@ def move(hero, movement):
 
 flPause = False
 flPause2 = False
-
 music_on = True
 music_on_lvl2 = True
-
 camera = Camera()
-
 current_scene = None
 FONT = 'data/sprites/font2.ttf'
 BUTTON_FONT_SIZE = 30
 objects = []
 font = pygame.font.Font(FONT, BUTTON_FONT_SIZE)
-
 button_start = False
 button_exit = False
-
 fps = 60
 fpsClock = pygame.time.Clock()
 player_coords = Player(8, 9)
@@ -263,7 +241,8 @@ player_coords = Player(8, 9)
 class Button():
     global button_start, button_exit
 
-    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onclickFunction2=None, onePress=False):
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onclickFunction2=None,
+                 onePress=False):
         self.x = x
         self.y = y
         self.width = width
@@ -320,14 +299,12 @@ def pressButton():
     global button_start, button_exit
     if pygame.mouse.get_pressed(num_buttons=3)[0]:
         button_start = True
-    print(button_start)
 
 
 def pressButton2():
     global button_exit
     if pygame.mouse.get_pressed(num_buttons=5)[0]:
         button_exit = True
-    print(button_exit)
 
 
 Button(275, 275, 190, 65, 'Start', pressButton)
@@ -349,9 +326,6 @@ flag3 = True
 def shoot(mouse_x, mouse_y, lst):
     global flag1, flag2, flag3, CUR
     pygame.draw.line(screen, (255, 0, 0), (408, 456), (mouse_x, mouse_y), 5)
-
-    mouse_orig_x = mouse_x
-    mouse_orig_y = mouse_y
 
     # изменение X мыши для хода в лево
     if lst[0] < 0:
@@ -416,7 +390,6 @@ def shoot(mouse_x, mouse_y, lst):
                 count += 1
             elif flag2 and not flag1:
                 if count == 372:
-                    print("Yes")
                     i.kill()
                     flag3 = False
                     result = CUR.execute("""UPDATE score_for_levels SET kills = kills + 1""").fetchall()
@@ -539,7 +512,6 @@ def score():
 
 
 def game_end():
-    print("GAME END")
     result = CUR.execute("""UPDATE score_for_levels SET kills = 0""").fetchall()
     con.commit()
     return True
@@ -560,7 +532,6 @@ def level_scene1():
     running = True
     presses = pygame.key.get_pressed()
     pygame.mouse.set_visible(False)
-    old_pos = ()
 
     # Удаление неподвижного спрайта персонажа
     count = 0
@@ -572,7 +543,6 @@ def level_scene1():
 
     while running:
         if score() == 3:
-            running = False
             switch_scene(level_scene2)
             return
         for event in pygame.event.get():
@@ -621,7 +591,6 @@ def level_scene1():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
-                hero_x, hero_y = hero.pos
                 shoot(mouse_x, mouse_y, lst)
 
         for x in constants.all_sprites:
@@ -646,7 +615,7 @@ def level_scene1():
 
 
 def level_scene2():
-    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst, game
+    global cursorPX, cursorPY, level_map, hero, max_x, max_y, camera, flPause2, music_on_lvl2, player_image, lst
     for i in sprite_group:
         i.kill()
     for i in bot_group:
@@ -660,7 +629,6 @@ def level_scene2():
     running = True
     presses = pygame.key.get_pressed()
     pygame.mouse.set_visible(False)
-    old_pos = ()
 
     # Удаление неподвижного спрайта персонажа
     count = 0
@@ -725,7 +693,6 @@ def level_scene2():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = event.pos
-                hero_x, hero_y = hero.pos
                 shoot(mouse_x, mouse_y, lst)
 
         for x in constants.all_sprites:
